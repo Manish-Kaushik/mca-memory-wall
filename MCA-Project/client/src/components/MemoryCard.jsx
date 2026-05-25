@@ -13,6 +13,7 @@ const MemoryCard = ({ memory }) => {
   if (!memory || !memory.userId) return null;
 
   // React function
+
   const reactMemory = async (type) => {
 
     try {
@@ -22,12 +23,21 @@ const MemoryCard = ({ memory }) => {
         { type }
       );
 
-      // Temporary refresh
+      // update UI instantly
+
+      memory.reactions = {
+        ...memory.reactions,
+        [type]:
+          (memory.reactions?.[type] || 0) + 1
+      };
+
       window.location.reload();
 
     } catch (error) {
 
       console.log(error);
+
+      alert('Reaction failed');
 
     }
 
@@ -56,7 +66,7 @@ const MemoryCard = ({ memory }) => {
 
           <img
             src={
-              memory.userId.profileImage ||
+              memory.userId?.profileImage ||
               "https://via.placeholder.com/40"
             }
             alt="user"
@@ -64,7 +74,7 @@ const MemoryCard = ({ memory }) => {
           />
 
           <span className="font-bold text-sm">
-            {memory.userId.name || "Unknown User"}
+            {memory.userId?.name || "Unknown User"}
           </span>
 
         </div>

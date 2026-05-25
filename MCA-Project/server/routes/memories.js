@@ -1,113 +1,294 @@
 const express = require('express');
+
 const router = express.Router();
+
 const multer = require('multer');
-const cloudinary = require('cloudinary').v2;
-const Memory = require('../models/Memories');
-const { protect } = require('../middleware/authMiddleware');
+
+const cloudinary =
+  require('cloudinary').v2;
+
+const Memory =
+  require('../models/Memories');
+
+const {
+  protect
+} = require('../middleware/authMiddleware');
 
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
+
+  cloud_name:
+    process.env.CLOUDINARY_CLOUD_NAME,
+
+  api_key:
+    process.env.CLOUDINARY_API_KEY,
+
+  api_secret:
+    process.env.CLOUDINARY_API_SECRET
+
 });
 
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
+const storage =
+  multer.memoryStorage();
 
-router.post('/', protect, upload.single('image'), async (req, res) => {
-  try {
+const upload =
+  multer({ storage });
 
-    console.log(req.file);
-    console.log(req.body);
 
-    let result;
+// ================= CREATE MEMORY =================
 
-    if (req.file) {
+router.post(
+  '/',
+  protect,
+  upload.single('image'),
 
-      result = await new Promise((resolve, reject) => {
+  async (req, res) => {
 
-        cloudinary.uploader.upload_stream(
-          {
-            resource_type: 'image',
-            folder: 'mca_memories'
-          },
+    try {
 
-          (error, result) => {
+      let result;
 
-            if (error) {
-              console.log(error);
-              reject(error);
-            } else {
-              resolve(result);
+      if (req.file) {
+
+        result =
+          await new Promise(
+            (resolve, reject) => {
+
+              cloudinary.uploader.upload_stream(
+
+                {
+                  resource_type: 'image',
+                  folder: 'mca_memories'
+                },
+
+                (error, result) => {
+
+                  if (error) {
+
+                    reject(error);
+
+                  } else {
+
+                    resolve(result);
+
+                  }
+
+                }
+
+              ).end(req.file.buffer);
+
             }
+          );
 
+      }
+
+      const memory =
+        await Memory.create({
+
+          userId:
+            req.user._id,
+
+          image:
+            result?.secure_url || '',
+
+          message:
+            req.body.message,
+
+          category:
+            req.body.category,
+
+          reactions: {
+            love: 0,
+            fire: 0,
+            funny: 0,
+            sad: 0
           }
 
-        ).end(req.file.buffer);
+        });
 
+      res.status(201).json(memory);
+
+    } catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+        message: error.message
       });
-
-      console.log(result);
 
     }
 
-    const memory = await Memory.create({
-      userId: req.user._id,
-      image: result?.secure_url || '',
-      message: req.body.message,
-      category: req.body.category
-    });
-
-    res.status(201).json(memory);
-
-  } catch (error) {
-
-    console.log(error);
-
-    res.status(500).json({
-      message: error.message
-    });
-
   }
-});
+);
+
+
+// ================= GET MEMORIES =================
 
 router.get('/', async (req, res) => {
-  try {
-    const memories = await Memory.find()
-      .populate('userId', 'name profileImage phone linkedin instagram github')
-      .sort({ createdAt: -1 });
 
-    // ✅ NULL USER FIX
-    const filtered = memories.filter(m => m.userId !== null);
+  try {
+
+    const memories =
+      await Memory.find()
+
+        .populate(
+          'userId',
+          'name profileImage phone linkedin instagram github'
+        )
+
+        .sort({
+          createdAt: -1
+        });
+
+    // remove deleted users
+
+    const filtered =
+      memories.filter(
+        m => m.userId !== null
+      );
 
     res.json(filtered);
+
   } catch (error) {
+
     res.status(500).json({
       message: error.message
     });
+
   }
+
 });
-router.put('/react/:id', async (req, res) => {
 
-  try {
 
-    const memory = await Memory.findById(req.params.id);
+// ================= REACT MEMORY =================
 
-    if (memory) {
+router.put(
+  '/react/:id',
 
-   if (!memory.reactions) {
-  memory.reactions = { like: 0, love: 0 };
-}
+  async (req, res) => {
 
-if (!memory.reactions[req.body.type]) {
-  memory.reactions[req.body.type] = 0;
-}
+    try {
 
-memory.reactions[req.body.type]++;
+      const memory =
+        await Memory.findById(
+          req.params.id
+        );
+
+      if (!memory) {
+
+        return res.status(404).json({
+          message: 'Memory not found'
+        });
+
+      }
+
+      // initialize if missing
+
+      if (!memory.reactions) {
+
+        memory.reactions = {
+          love: 0,
+          fire: 0,
+          funny: 0,
+          sad: 0
+        };
+
+      }
+
+      const type =
+        req.body.type;
+
+      if (
+        !memory.reactions[type]
+      ) {
+
+        memory.reactions[type] = 0;
+
+      }
+
+      memory.reactions[type]++;
 
       await memory.save();
 
       res.json(memory);
+
+    } catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+        message: error.message
+      });
+
+    }
+
+  }
+);
+
+
+// ================= DELETE MEMORY =================
+
+router.delete(
+  '/:id',
+  protect,
+
+  async (req, res) => {
+
+    const memory =
+      await Memory.findById(
+        req.params.id
+      );
+
+    if (memory) {
+
+      if (
+
+        memory.userId.toString()
+        ===
+        req.user._id.toString()
+
+        ||
+
+        req.user.role === 'admin'
+
+      ) {
+
+        // delete image from cloudinary
+
+        if (memory.image) {
+
+          const parts =
+            memory.image.split('/');
+
+          const fileName =
+            parts[
+              parts.length - 1
+            ];
+
+          const publicId =
+            'mca_memories/' +
+            fileName.split('.')[0];
+
+          await cloudinary.uploader.destroy(
+            publicId
+          );
+
+        }
+
+        // delete mongodb memory
+
+        await memory.deleteOne();
+
+        res.json({
+          message: 'Removed'
+        });
+
+      } else {
+
+        res.status(401).json({
+          message: 'Not authorized'
+        });
+
+      }
 
     } else {
 
@@ -117,69 +298,7 @@ memory.reactions[req.body.type]++;
 
     }
 
-  } catch (error) {
-
-    res.status(500).json({
-      message: error.message
-    });
-
   }
-
-});
-
-router.delete('/:id', protect, async (req, res) => {
-
-  const memory = await Memory.findById(req.params.id);
-
-  if (memory) {
-
-    if (
-      memory.userId.toString() === req.user._id.toString() ||
-      req.user.role === 'admin'
-    ) {
-
-    // delete image from cloudinary
-if (memory.image) {
-
-  const parts =
-    memory.image.split('/');
-
-  const fileName =
-    parts[parts.length - 1];
-
-  const publicId =
-    'mca_memories/' +
-    fileName.split('.')[0];
-
-  await cloudinary.uploader.destroy(
-    publicId
-  );
-
-}
-
-// delete memory from mongodb
-await memory.deleteOne();
-
-res.json({
-  message: 'Removed'
-});
-
-    } else {
-
-      res.status(401).json({
-        message: 'Not authorized'
-      });
-
-    }
-
-  } else {
-
-    res.status(404).json({
-      message: 'Not found'
-    });
-
-  }
-
-});
+);
 
 module.exports = router;
