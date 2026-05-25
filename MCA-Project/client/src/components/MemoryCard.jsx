@@ -4,11 +4,11 @@ const MemoryCard = ({ memory }) => {
   if (!memory.userId) return null;
 
   return (
-    <div className="bg-gray-800 rounded-xl overflow-hidden shadow-lg border border-gray-700">
+    <div className="bg-gray-800 rounded-xl overflow-hidden break-inside-avoid shadow-lg border border-gray-700">
       <img
         src={memory.image}
         alt="memory"
-        className="w-full h-48 object-cover"
+        className="w-full object-cover"
       />
 
       <div className="p-4">
