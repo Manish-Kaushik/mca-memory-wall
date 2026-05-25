@@ -5,43 +5,112 @@ import {
   Frown
 } from 'lucide-react';
 
+import { useState } from 'react';
+
 import api from '../services/api';
 
 const MemoryCard = ({ memory }) => {
 
   // Safety check
-  if (!memory || !memory.userId) return null;
+
+  if (!memory || !memory.userId)
+    return null;
+
+  // Local reactions state
+
+  const [reactions, setReactions] =
+    useState(
+      memory.reactions || {
+        love: 0,
+        fire: 0,
+        funny: 0,
+        sad: 0
+      }
+    );
+
+  // Track clicked reactions
+
+  const [clicked, setClicked] =
+    useState({
+      love: false,
+      fire: false,
+      funny: false,
+      sad: false
+    });
 
   // React function
 
-  const reactMemory = async (type) => {
+  const reactMemory =
+    async (type) => {
 
-    try {
+      try {
 
-      await api.put(
-        `/memories/react/${memory._id}`,
-        { type }
-      );
+        // already reacted → remove
 
-      // update UI instantly
+        if (clicked[type]) {
 
-      memory.reactions = {
-        ...memory.reactions,
-        [type]:
-          (memory.reactions?.[type] || 0) + 1
-      };
+          setReactions({
 
-      window.location.reload();
+            ...reactions,
 
-    } catch (error) {
+            [type]:
+              Math.max(
+                (reactions[type] || 1) - 1,
+                0
+              )
 
-      console.log(error);
+          });
 
-      alert('Reaction failed');
+          setClicked({
+            ...clicked,
+            [type]: false
+          });
 
-    }
+          return;
 
-  };
+        }
+
+        // max 2 reactions
+
+        if (
+          (reactions[type] || 0) >= 2
+        ) return;
+
+        // backend update
+
+        await api.put(
+          `/memories/react/${memory._id}`,
+          { type }
+        );
+
+        // frontend update
+
+        setReactions({
+
+          ...reactions,
+
+          [type]:
+            (reactions[type] || 0) + 1
+
+        });
+
+        setClicked({
+
+          ...clicked,
+
+          [type]: true
+
+        });
+
+      } catch (error) {
+
+        console.log(error);
+
+        alert('Reaction failed');
+
+      }
+
+    };
 
   return (
 
@@ -60,7 +129,7 @@ const MemoryCard = ({ memory }) => {
 
       <div className="p-4">
 
-        {/* User Info */}
+        {/* User */}
 
         <div className="flex items-center gap-2 mb-2">
 
@@ -74,7 +143,10 @@ const MemoryCard = ({ memory }) => {
           />
 
           <span className="font-bold text-sm">
-            {memory.userId?.name || "Unknown User"}
+
+            {memory.userId?.name ||
+              "Unknown User"}
+
           </span>
 
         </div>
@@ -82,7 +154,9 @@ const MemoryCard = ({ memory }) => {
         {/* Message */}
 
         <p className="text-gray-300 italic mb-2">
+
           "{memory.message}"
+
         </p>
 
         {/* Category + Date */}
@@ -94,9 +168,11 @@ const MemoryCard = ({ memory }) => {
           </span>
 
           <span>
+
             {new Date(
               memory.createdAt
             ).toLocaleDateString()}
+
           </span>
 
         </div>
@@ -105,44 +181,84 @@ const MemoryCard = ({ memory }) => {
 
         <div className="flex justify-between mt-4 text-sm">
 
+          {/* LOVE */}
+
           <button
             onClick={() =>
               reactMemory('love')
             }
-            className="flex items-center gap-1 text-pink-400 hover:scale-110 transition"
+
+            className={`flex items-center gap-1 transition hover:scale-110 ${
+              clicked.love
+                ? 'text-pink-600'
+                : 'text-pink-400'
+            }`}
           >
+
             <Heart size={16} />
-            {memory.reactions?.love || 0}
+
+            {reactions.love || 0}
+
           </button>
+
+          {/* FIRE */}
 
           <button
             onClick={() =>
               reactMemory('fire')
             }
-            className="flex items-center gap-1 text-orange-400 hover:scale-110 transition"
+
+            className={`flex items-center gap-1 transition hover:scale-110 ${
+              clicked.fire
+                ? 'text-orange-600'
+                : 'text-orange-400'
+            }`}
           >
+
             <Flame size={16} />
-            {memory.reactions?.fire || 0}
+
+            {reactions.fire || 0}
+
           </button>
+
+          {/* FUNNY */}
 
           <button
             onClick={() =>
               reactMemory('funny')
             }
-            className="flex items-center gap-1 text-yellow-400 hover:scale-110 transition"
+
+            className={`flex items-center gap-1 transition hover:scale-110 ${
+              clicked.funny
+                ? 'text-yellow-500'
+                : 'text-yellow-400'
+            }`}
           >
+
             <Laugh size={16} />
-            {memory.reactions?.funny || 0}
+
+            {reactions.funny || 0}
+
           </button>
+
+          {/* SAD */}
 
           <button
             onClick={() =>
               reactMemory('sad')
             }
-            className="flex items-center gap-1 text-blue-400 hover:scale-110 transition"
+
+            className={`flex items-center gap-1 transition hover:scale-110 ${
+              clicked.sad
+                ? 'text-blue-500'
+                : 'text-blue-400'
+            }`}
           >
+
             <Frown size={16} />
-            {memory.reactions?.sad || 0}
+
+            {reactions.sad || 0}
+
           </button>
 
         </div>
