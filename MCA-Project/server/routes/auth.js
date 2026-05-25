@@ -108,6 +108,13 @@ router.post('/login', async (req, res) => {
   } catch (error) {
     console.error(error);
 
+    console.log(req.body);
+console.log("Entered:", password);
+console.log("DB hash:", user.password);
+
+const match = await bcrypt.compare(password, user.password);
+console.log("Match:", match);
+    
     res.status(500).json({
       message: error.message
     });
