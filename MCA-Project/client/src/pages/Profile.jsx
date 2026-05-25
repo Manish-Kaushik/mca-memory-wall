@@ -10,7 +10,8 @@ import {
   Mail,
   Edit2,
   Save,
-  X
+  X,
+  Trash2
 } from 'lucide-react';
 
 const Profile = () => {
@@ -129,6 +130,43 @@ const Profile = () => {
 
   }
 };
+
+const handleDeleteMemory = async (
+  memoryId
+) => {
+
+  const confirmDelete =
+    window.confirm(
+      'Delete this memory?'
+    );
+
+  if (!confirmDelete) return;
+
+  try {
+
+    await api.delete(
+      `/memories/${memoryId}`
+    );
+
+    setMemories(
+      memories.filter(
+        (m) => m._id !== memoryId
+      )
+    );
+
+    alert('Memory Deleted');
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert('Delete Failed');
+
+  }
+
+};
+
+  
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -360,44 +398,59 @@ const Profile = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-          {memories.length > 0 ? (
+{memories.length > 0 ? (
 
-            memories.map((memory) => (
+  memories.map((memory) => (
 
-              <div
-                key={memory._id}
-                className="bg-gray-800 rounded-xl overflow-hidden shadow-lg"
-              >
+    <div
+      key={memory._id}
+      className="bg-gray-800 rounded-xl overflow-hidden shadow-lg"
+    >
 
-                <img
-                  src={memory.image}
-                  alt="memory"
-                  className="w-full h-48 object-cover"
-                />
+      <img
+        src={memory.image}
+        alt="memory"
+        className="w-full h-48 object-cover"
+      />
 
-                <div className="p-4">
+      <div className="p-4">
 
-                  <p className="text-white mb-2">
-                    "{memory.message}"
-                  </p>
+        <div className="flex justify-end mb-2">
 
-                  <p className="text-xs text-gray-500">
-                    {memory.category}
-                  </p>
+          <button
+            onClick={() =>
+              handleDeleteMemory(memory._id)
+            }
+            className="text-red-400 hover:text-red-600 transition"
+          >
 
-                </div>
+            <Trash2 size={18} />
 
-              </div>
+          </button>
 
-            ))
+        </div>
 
-          ) : (
+        <p className="text-white mb-2">
+          "{memory.message}"
+        </p>
 
-            <div className="col-span-full text-center py-12 text-gray-500">
-              No memories uploaded yet.
-            </div>
+        <p className="text-xs text-gray-500">
+          {memory.category}
+        </p>
 
-          )}
+      </div>
+
+    </div>
+
+  ))
+
+) : (
+
+  <div className="col-span-full text-center py-12 text-gray-500">
+    No memories uploaded yet.
+  </div>
+
+)}
 
         </div>
 
