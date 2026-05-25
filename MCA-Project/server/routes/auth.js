@@ -72,52 +72,49 @@ router.post('/register', async (req, res) => {
 // ================= LOGIN =================
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
-  console.log(req.body);
 
+  console.log("BODY:", req.body);
 
   try {
     const user = await User.findOne({ email });
 
-    if (user && await bcrypt.compare(password, user.password)) {
+    if (!user) {
+      console.log("User not found");
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
 
+    console.log("Entered:", password);
+    console.log("DB hash:", user.password);
+
+    const match = await bcrypt.compare(password, user.password);
+    console.log("Match:", match);
+
+    if (match) {
       const token = jwt.sign(
         { id: user._id },
         process.env.JWT_SECRET,
         { expiresIn: '30d' }
       );
 
-      res.json({
+      return res.json({
         token,
         user: {
           _id: user._id,
           name: user.name,
           email: user.email,
           role: user.role,
-          avatar: user.profileImage,
-          phone: user.phone,
-          linkedin: user.linkedin,
-          instagram: user.instagram,
-          github: user.github
+          avatar: user.profileImage
         }
-      });
-
-    } else {
-      res.status(401).json({
-        message: 'Invalid credentials'
       });
     }
 
+    res.status(401).json({ message: 'Invalid credentials' });
+
   } catch (error) {
     console.error(error);
-
-    
-    
-    res.status(500).json({
-      message: error.message
-    });
+    res.status(500).json({ message: error.message });
   }
 });
-
 // ================= UPDATE PROFILE =================
 router.put('/profile', protect, async (req, res) => {
   try {
