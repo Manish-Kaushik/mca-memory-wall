@@ -138,11 +138,31 @@ router.delete('/:id', protect, async (req, res) => {
       req.user.role === 'admin'
     ) {
 
-      await memory.deleteOne();
+    // delete image from cloudinary
+if (memory.image) {
 
-      res.json({
-        message: 'Removed'
-      });
+  const parts =
+    memory.image.split('/');
+
+  const fileName =
+    parts[parts.length - 1];
+
+  const publicId =
+    'mca_memories/' +
+    fileName.split('.')[0];
+
+  await cloudinary.uploader.destroy(
+    publicId
+  );
+
+}
+
+// delete memory from mongodb
+await memory.deleteOne();
+
+res.json({
+  message: 'Removed'
+});
 
     } else {
 
