@@ -102,7 +102,15 @@ router.put('/react/:id', async (req, res) => {
 
     if (memory) {
 
-      memory.reactions[req.body.type]++;
+   if (!memory.reactions) {
+  memory.reactions = { like: 0, love: 0 };
+}
+
+if (!memory.reactions[req.body.type]) {
+  memory.reactions[req.body.type] = 0;
+}
+
+memory.reactions[req.body.type]++;
 
       await memory.save();
 
