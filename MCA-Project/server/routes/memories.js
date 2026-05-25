@@ -72,28 +72,21 @@ router.post('/', protect, upload.single('image'), async (req, res) => {
 });
 
 router.get('/', async (req, res) => {
-
   try {
-
     const memories = await Memory.find()
-      .populate(
-        'userId',
-        'name profileImage phone linkedin instagram github'
-      )
+      .populate('userId', 'name profileImage phone linkedin instagram github')
       .sort({ createdAt: -1 });
 
-    res.json(memories);
+    // ✅ NULL USER FIX
+    const filtered = memories.filter(m => m.userId !== null);
 
+    res.json(filtered);
   } catch (error) {
-
     res.status(500).json({
       message: error.message
     });
-
   }
-
 });
-
 router.put('/react/:id', async (req, res) => {
 
   try {
