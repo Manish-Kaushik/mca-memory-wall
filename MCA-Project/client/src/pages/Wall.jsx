@@ -54,7 +54,7 @@ const Wall = () => {
           700: 1
         }}
 
-        className="flex gap-6"
+        className="flex w-auto gap-6"
         columnClassName="space-y-6"
       >
 
