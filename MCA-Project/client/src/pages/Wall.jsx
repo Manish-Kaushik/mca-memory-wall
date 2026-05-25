@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '../services/api';
-import MemoryCard from '../components/MemoryCard';
+import MemoryCard from '../components/MemoryCard'; // Ensure you create this component
 
 const Wall = () => {
   const [memories, setMemories] = useState([]);

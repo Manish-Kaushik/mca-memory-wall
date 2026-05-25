@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import imageCompression
+from 'browser-image-compression';
 import api from '../services/api';
 
 const Upload = () => {
