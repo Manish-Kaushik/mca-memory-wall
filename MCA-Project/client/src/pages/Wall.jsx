@@ -17,6 +17,7 @@ const Wall = () => {
           await api.get('/memories');
 
         // Remove memories with deleted users
+
         const filtered =
           data.filter(
             (m) => m?.userId !== null
@@ -39,10 +40,10 @@ const Wall = () => {
 
   }, []);
 
-  // Trending memory
+  // 🔥 Trending Memory
 
   const trendingMemory =
-    [...memories] // copy array
+    [...memories]
       .sort((a, b) => {
 
         const aTotal =
@@ -73,7 +74,7 @@ const Wall = () => {
         Memory Wall
       </h2>
 
-      {/* Trending Memory */}
+      {/* 🔥 Trending Memory */}
 
       {trendingMemory && (
 
@@ -84,16 +85,18 @@ const Wall = () => {
           </h3>
 
           <div className="max-w-md">
+
             <MemoryCard
               memory={trendingMemory}
             />
+
           </div>
 
         </div>
 
       )}
 
-      {/* All Memories */}
+      {/* 📸 All Memories */}
 
       <Masonry
         breakpointCols={{
@@ -101,6 +104,7 @@ const Wall = () => {
           1100: 2,
           700: 1
         }}
+
         className="flex w-auto gap-6"
         columnClassName="space-y-6"
       >
