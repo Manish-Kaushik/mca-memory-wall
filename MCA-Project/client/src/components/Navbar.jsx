@@ -1,6 +1,12 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
-import { useContext } from "react";
+import { useContext, useState } from "react";
+
+import {
+  Menu,
+  X,
+  Sparkles
+} from "lucide-react";
 
 import { AuthContext } from "../context/AuthContext";
 
@@ -11,28 +17,64 @@ const Navbar = () => {
     logoutUser
   } = useContext(AuthContext);
 
+  const location =
+    useLocation();
+
+  const [menuOpen, setMenuOpen] =
+    useState(false);
+
   const handleLogout = () => {
 
     logoutUser();
 
   };
 
+  const navLink =
+    "hover:text-purple-400 transition duration-300";
+
+  const activeLink =
+    "text-purple-400 font-semibold";
+
   return (
 
-    <nav className="bg-gray-800/80 backdrop-blur border-b border-gray-700 p-4 sticky top-0 z-50">
+    <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#071028]/80 backdrop-blur-xl">
 
-      <div className="max-w-7xl mx-auto flex justify-between items-center">
+      <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+
+        {/* LOGO */}
 
         <Link
           to="/"
-          className="text-xl font-bold text-purple-400"
+          className="flex items-center gap-2"
         >
 
-          MCA Wall
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-600 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/30">
+
+            <Sparkles size={18} />
+
+          </div>
+
+          <div>
+
+            <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+
+              MCA Memory Wall
+
+            </h1>
+
+            <p className="text-xs text-gray-400">
+
+              Batch 2024–26
+
+            </p>
+
+          </div>
 
         </Link>
 
-        <div className="space-x-4 flex items-center">
+        {/* DESKTOP MENU */}
+
+        <div className="hidden md:flex items-center gap-6 text-sm font-medium">
 
           {user ? (
 
@@ -40,16 +82,24 @@ const Navbar = () => {
 
               <Link
                 to="/wall"
-                className="hover:text-purple-400"
+                className={`${navLink} ${
+                  location.pathname === "/wall"
+                    ? activeLink
+                    : ""
+                }`}
               >
 
-                Wall
+                Memories
 
               </Link>
 
               <Link
                 to="/upload"
-                className="hover:text-purple-400"
+                className={`${navLink} ${
+                  location.pathname === "/upload"
+                    ? activeLink
+                    : ""
+                }`}
               >
 
                 Upload
@@ -58,20 +108,22 @@ const Navbar = () => {
 
               <Link
                 to="/profile"
-                className="hover:text-purple-400"
+                className={`${navLink} ${
+                  location.pathname === "/profile"
+                    ? activeLink
+                    : ""
+                }`}
               >
 
                 Profile
 
               </Link>
 
-              {/* ADMIN LINK */}
-
               {user?.role === "admin" && (
 
                 <Link
                   to="/admin"
-                  className="text-yellow-400 hover:text-yellow-300 font-semibold"
+                  className="text-yellow-400 hover:text-yellow-300 font-semibold transition"
                 >
 
                   Admin
@@ -82,7 +134,7 @@ const Navbar = () => {
 
               <button
                 onClick={handleLogout}
-                className="text-red-400 hover:text-red-300"
+                className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-2 rounded-xl hover:bg-red-500 hover:text-white transition duration-300"
               >
 
                 Logout
@@ -96,8 +148,38 @@ const Navbar = () => {
             <>
 
               <Link
+                to="/"
+                className={`${navLink} ${
+                  location.pathname === "/"
+                    ? activeLink
+                    : ""
+                }`}
+              >
+
+                Home
+
+              </Link>
+
+              <Link
+                to="/wall"
+                className={`${navLink} ${
+                  location.pathname === "/wall"
+                    ? activeLink
+                    : ""
+                }`}
+              >
+
+                Memories
+
+              </Link>
+
+              <Link
                 to="/login"
-                className="hover:text-purple-400"
+                className={`${navLink} ${
+                  location.pathname === "/login"
+                    ? activeLink
+                    : ""
+                }`}
               >
 
                 Login
@@ -106,7 +188,7 @@ const Navbar = () => {
 
               <Link
                 to="/register"
-                className="bg-purple-600 px-4 py-2 rounded hover:bg-purple-500"
+                className="bg-gradient-to-r from-purple-600 to-pink-500 px-5 py-2 rounded-xl hover:scale-105 transition duration-300 shadow-lg shadow-purple-500/30"
               >
 
                 Register
@@ -119,7 +201,158 @@ const Navbar = () => {
 
         </div>
 
+        {/* MOBILE MENU BUTTON */}
+
+        <button
+          onClick={() =>
+            setMenuOpen(!menuOpen)
+          }
+
+          className="md:hidden"
+        >
+
+          {menuOpen ? (
+            <X size={28} />
+          ) : (
+            <Menu size={28} />
+          )}
+
+        </button>
+
       </div>
+
+      {/* MOBILE MENU */}
+
+      {menuOpen && (
+
+        <div className="md:hidden px-6 pb-6 flex flex-col gap-4 bg-[#09142d] border-t border-white/10">
+
+          {user ? (
+
+            <>
+
+              <Link
+                to="/wall"
+                onClick={() =>
+                  setMenuOpen(false)
+                }
+              >
+
+                Memories
+
+              </Link>
+
+              <Link
+                to="/upload"
+                onClick={() =>
+                  setMenuOpen(false)
+                }
+              >
+
+                Upload
+
+              </Link>
+
+              <Link
+                to="/profile"
+                onClick={() =>
+                  setMenuOpen(false)
+                }
+              >
+
+                Profile
+
+              </Link>
+
+              {user?.role === "admin" && (
+
+                <Link
+                  to="/admin"
+                  className="text-yellow-400"
+                  onClick={() =>
+                    setMenuOpen(false)
+                  }
+                >
+
+                  Admin
+
+                </Link>
+
+              )}
+
+              <button
+                onClick={() => {
+
+                  handleLogout();
+
+                  setMenuOpen(false);
+
+                }}
+
+                className="text-left text-red-400"
+              >
+
+                Logout
+
+              </button>
+
+            </>
+
+          ) : (
+
+            <>
+
+              <Link
+                to="/"
+                onClick={() =>
+                  setMenuOpen(false)
+                }
+              >
+
+                Home
+
+              </Link>
+
+              <Link
+                to="/wall"
+                onClick={() =>
+                  setMenuOpen(false)
+                }
+              >
+
+                Memories
+
+              </Link>
+
+              <Link
+                to="/login"
+                onClick={() =>
+                  setMenuOpen(false)
+                }
+              >
+
+                Login
+
+              </Link>
+
+              <Link
+                to="/register"
+                onClick={() =>
+                  setMenuOpen(false)
+                }
+              >
+
+                Register
+
+              </Link>
+
+            </>
+
+          )}
+
+        </div>
+
+      )}
 
     </nav>
 

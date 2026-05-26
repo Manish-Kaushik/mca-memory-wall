@@ -2,7 +2,129 @@
 @tailwind components;
 @tailwind utilities;
 
+/* GLOBAL */
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  background-color: #0f172a; /* Dark blue/gray */
+  background: #050816;
   color: white;
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+}
+
+/* SCROLLBAR */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0b1120;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    to bottom,
+    #9333ea,
+    #ec4899
+  );
+
+  border-radius: 20px;
+}
+
+/* SELECTION */
+
+::selection {
+  background: #a855f7;
+  color: white;
+}
+
+/* GLASS EFFECT */
+
+.glass {
+  background: rgba(255,255,255,0.05);
+
+  backdrop-filter: blur(16px);
+
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* FADE ANIMATION */
+
+@keyframes fadeIn {
+
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.6s ease;
+}
+
+/* FLOATING ANIMATION */
+
+@keyframes float {
+
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* GLOW EFFECT */
+
+.glow-purple {
+  box-shadow:
+    0 0 20px rgba(168,85,247,0.4);
+}
+
+.glow-pink {
+  box-shadow:
+    0 0 20px rgba(236,72,153,0.4);
+}
+
+/* HIDE SCROLLBAR */
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* IMAGE SMOOTH */
+
+img {
+  transition: all 0.4s ease;
+}
+
+/* BUTTON PRESS EFFECT */
+
+button:active {
+  transform: scale(0.96);
 }
