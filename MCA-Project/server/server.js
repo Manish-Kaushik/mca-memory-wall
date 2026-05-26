@@ -23,9 +23,15 @@ app.use(
   require('./routes/auth')
 );
 
+
 app.use(
   '/api/memories',
   require('./routes/memories')
+);
+
+app.use(
+  '/api/admin',
+  require('./routes/admin')
 );
 
 // Root Route
