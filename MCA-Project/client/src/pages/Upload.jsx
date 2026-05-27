@@ -4,7 +4,7 @@ import {
 
 import {
   UploadCloud,
-  Image,
+  ImageIcon,
   Sparkles
 } from 'lucide-react';
 
@@ -45,7 +45,7 @@ const Upload = () => {
             await imageCompression(
               image,
               {
-                maxSizeMB: 0.3,
+                maxSizeMB: 0.4,
                 maxWidthOrHeight: 1600,
                 useWebWorker: true
               }
@@ -102,59 +102,75 @@ const Upload = () => {
 
   return (
 
-    <div className="min-h-screen bg-[#050816] flex items-center justify-center px-6 relative overflow-hidden">
+    <div className="min-h-screen bg-[#050816] px-6 py-12 relative overflow-hidden">
 
-      <div className="absolute top-0 left-0 w-96 h-96 bg-purple-700/20 blur-3xl rounded-full"></div>
+      {/* GLOW EFFECTS */}
 
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-pink-700/20 blur-3xl rounded-full"></div>
+      <div className="absolute top-0 left-0 w-80 h-80 bg-purple-700/20 blur-3xl rounded-full"></div>
 
-      <div className="relative z-10 w-full max-w-2xl glass rounded-3xl p-8 shadow-2xl">
+      <div className="absolute bottom-0 right-0 w-80 h-80 bg-pink-700/20 blur-3xl rounded-full"></div>
 
-        <div className="text-center mb-8">
+      {/* MAIN CARD */}
 
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-500 mx-auto flex items-center justify-center mb-4">
+      <div className="relative z-10 max-w-4xl mx-auto bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
 
-            <Sparkles size={30} />
+        {/* HEADER */}
+
+        <div className="text-center pt-8 px-6">
+
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-500 mx-auto flex items-center justify-center mb-4 shadow-xl">
+
+            <Sparkles size={24} />
 
           </div>
 
-          <h2 className="text-4xl font-bold mb-2">
+          <h2 className="text-3xl font-bold mb-2">
 
             Share A Memory
 
           </h2>
 
-          <p className="text-gray-400">
+          <p className="text-gray-400 text-sm">
 
-            Upload your unforgettable moments
+            Upload your unforgettable MCA moments ✨
 
           </p>
 
         </div>
 
+        {/* FORM */}
+
         <form
           onSubmit={handleSubmit}
-          className="space-y-6"
+          className="grid lg:grid-cols-2 gap-8 p-8"
         >
 
-          <label className="border-2 border-dashed border-white/10 rounded-3xl p-10 flex flex-col items-center justify-center text-center cursor-pointer hover:border-purple-500 transition duration-300">
+          {/* LEFT */}
+
+          <label className="border border-purple-500/20 rounded-2xl min-h-[280px] flex flex-col items-center justify-center text-center cursor-pointer hover:border-purple-500 transition duration-300 bg-white/5 p-6">
 
             <UploadCloud
-              size={40}
+              size={42}
               className="text-purple-400 mb-4"
             />
 
-            <p className="text-lg font-semibold">
+            <h3 className="text-lg font-semibold mb-2">
 
-              Click To Upload Image
+              Click To Upload
+
+            </h3>
+
+            <p className="text-gray-400 mb-4 text-sm">
+
+              JPG, PNG up to 5MB
 
             </p>
 
-            <p className="text-gray-400 text-sm mt-2">
+            <div className="bg-gradient-to-r from-purple-600 to-pink-500 px-5 py-2 rounded-lg font-medium text-sm shadow-lg">
 
-              JPG, PNG supported
+              Choose File
 
-            </p>
+            </div>
 
             <input
               type="file"
@@ -168,84 +184,100 @@ const Upload = () => {
               required
             />
 
+            {image && (
+
+              <div className="mt-5 bg-white/10 border border-white/10 rounded-xl px-4 py-2 flex items-center gap-2 max-w-[90%]">
+
+                <ImageIcon
+                  size={18}
+                  className="text-purple-400"
+                />
+
+                <span className="truncate text-sm">
+
+                  {image.name}
+
+                </span>
+
+              </div>
+
+            )}
+
           </label>
 
-          {image && (
+          {/* RIGHT */}
 
-            <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-2xl p-4">
+          <div className="flex flex-col justify-center">
 
-              <Image
-                size={22}
-                className="text-purple-400"
-              />
+            {/* MESSAGE */}
 
-              <span className="truncate">
+            <textarea
+              placeholder="Write your beautiful memory..."
+              rows="5"
+              value={message}
+              onChange={(e) =>
+                setMessage(
+                  e.target.value
+                )
+              }
+              className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm outline-none focus:border-purple-500 text-white resize-none mb-5"
+              required
+            />
 
-                {image.name}
+            {/* CATEGORY */}
 
-              </span>
+            <select
+              value={category}
+              onChange={(e) =>
+                setCategory(
+                  e.target.value
+                )
+              }
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm outline-none focus:border-purple-500 mb-5"
+            >
 
-            </div>
+              <option>
+                Friends
+              </option>
 
-          )}
+              <option>
+                Me
+              </option>
 
-          <textarea
-            placeholder="Write your memory..."
-            rows="5"
-            value={message}
-            onChange={(e) =>
-              setMessage(
-                e.target.value
-              )
-            }
-            className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 outline-none focus:border-purple-500"
-            required
-          />
+              <option>
+                Classroom
+              </option>
 
-          <select
-            value={category}
-            onChange={(e) =>
-              setCategory(
-                e.target.value
-              )
-            }
-            className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 outline-none focus:border-purple-500"
-          >
+              <option>
+                Trip
+              </option>
 
-            <option>
-              Friends
-            </option>
+              <option>
+                Farewell
+              </option>
 
-            <option>
-              Classroom
-            </option>
+              <option>
+                Events
+              </option>
 
-            <option>
-              Trip
-            </option>
+            </select>
 
-            <option>
-              Farewell
-            </option>
+            {/* BUTTON */}
 
-            <option>
-              Events
-            </option>
+            <button
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-500 py-3.5 rounded-xl font-semibold hover:opacity-90 transition duration-300 shadow-xl disabled:opacity-50"
+            >
 
-          </select>
+              {
+                loading
+                  ? 'Uploading...'
+                  : 'Upload Memory'
+              }
 
-          <button
-            disabled={loading}
-            className="w-full bg-gradient-to-r from-purple-600 to-pink-500 py-4 rounded-2xl font-bold hover:scale-105 transition duration-300 shadow-xl disabled:opacity-50"
-          >
+            </button>
 
-            {
-              loading
-                ? 'Uploading...'
-                : 'Upload Memory'
-            }
-
-          </button>
+          </div>
 
         </form>
 
