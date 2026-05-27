@@ -9,9 +9,11 @@ import {
 } from 'react-router-dom';
 
 import {
-  LogIn,
+  User,
   Mail,
-  Lock
+  Lock,
+  UserPlus,
+  IdCard
 } from 'lucide-react';
 
 import api from '../services/api';
@@ -20,13 +22,15 @@ import {
   AuthContext
 } from '../context/AuthContext';
 
-const Login = () => {
+const Register = () => {
 
-  const [email, setEmail] =
-    useState('');
-
-  const [password, setPassword] =
-    useState('');
+  const [formData, setFormData] =
+    useState({
+      name: '',
+      enrollment: '',
+      email: '',
+      password: ''
+    });
 
   const {
     setUser
@@ -44,11 +48,8 @@ const Login = () => {
 
         const { data } =
           await api.post(
-            '/auth/login',
-            {
-              email,
-              password
-            }
+            '/auth/register',
+            formData
           );
 
         localStorage.setItem(
@@ -63,7 +64,8 @@ const Login = () => {
       } catch (error) {
 
         alert(
-          'Invalid Credentials'
+          error.response?.data?.message ||
+          'Registration Failed'
         );
 
       }
@@ -72,103 +74,193 @@ const Login = () => {
 
   return (
 
-    <div className="min-h-screen bg-[#050816] flex items-center justify-center px-6 relative overflow-hidden">
+    <div className="min-h-screen bg-[#050816] flex flex-col justify-between overflow-hidden relative">
 
-      <div className="absolute top-0 left-0 w-96 h-96 bg-purple-700/20 blur-3xl rounded-full"></div>
+      {/* BACKGROUND BLURS */}
 
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-pink-700/20 blur-3xl rounded-full"></div>
+      <div className="absolute top-[-150px] left-[-100px] w-[400px] h-[400px] bg-purple-700/20 blur-3xl rounded-full"></div>
 
-      <div className="relative z-10 w-full max-w-md glass rounded-3xl p-8 shadow-2xl">
+      <div className="absolute bottom-[-150px] right-[-100px] w-[400px] h-[400px] bg-pink-700/20 blur-3xl rounded-full"></div>
 
-        <div className="text-center mb-8">
+      {/* MAIN */}
 
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-500 mx-auto flex items-center justify-center mb-4">
+      <div className="flex-1 flex justify-center items-center px-6 py-10 relative z-10">
 
-            <LogIn size={30} />
+        <div className="w-full max-w-[520px] bg-white/5 backdrop-blur-xl border border-white/10 rounded-[32px] p-10 shadow-2xl">
+
+          {/* ICON */}
+
+          <div className="w-20 h-20 rounded-3xl bg-gradient-to-r from-purple-600 to-pink-500 mx-auto flex items-center justify-center mb-6 shadow-xl">
+
+            <UserPlus size={36} />
 
           </div>
 
-          <h2 className="text-4xl font-bold mb-2">
+          {/* TITLE */}
 
-            Welcome Back
+          <h2 className="text-5xl font-bold text-center mb-3">
+
+            Join The Wall
 
           </h2>
 
-          <p className="text-gray-400">
+          <p className="text-gray-400 text-center mb-10 text-lg">
 
-            Login to continue your memories
+            Create your account and share memories ✨
+
+          </p>
+
+          {/* FORM */}
+
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-6"
+          >
+
+            {/* NAME */}
+
+            <div className="relative">
+
+              <User
+                className="absolute left-5 top-5 text-gray-400"
+                size={20}
+              />
+
+              <input
+                type="text"
+                placeholder="Full Name"
+                className="w-full bg-[#0b1220] border border-white/10 rounded-2xl py-5 pl-14 pr-4 outline-none focus:border-purple-500 text-lg"
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    name: e.target.value
+                  })
+                }
+                required
+              />
+
+            </div>
+
+            {/* ENROLLMENT */}
+
+            <div className="relative">
+
+              <IdCard
+                className="absolute left-5 top-5 text-gray-400"
+                size={20}
+              />
+
+              <input
+                type="text"
+                placeholder="Enrollment Number"
+                className="w-full bg-[#0b1220] border border-white/10 rounded-2xl py-5 pl-14 pr-4 outline-none focus:border-purple-500 text-lg"
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    enrollment: e.target.value
+                  })
+                }
+                required
+              />
+
+            </div>
+
+            {/* EMAIL */}
+
+            <div className="relative">
+
+              <Mail
+                className="absolute left-5 top-5 text-gray-400"
+                size={20}
+              />
+
+              <input
+                type="email"
+                placeholder="student@mca.edu"
+                className="w-full bg-[#0b1220] border border-white/10 rounded-2xl py-5 pl-14 pr-4 outline-none focus:border-purple-500 text-lg"
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    email: e.target.value
+                  })
+                }
+                required
+              />
+
+            </div>
+
+            {/* PASSWORD */}
+
+            <div className="relative">
+
+              <Lock
+                className="absolute left-5 top-5 text-gray-400"
+                size={20}
+              />
+
+              <input
+                type="password"
+                placeholder="••••••••"
+                className="w-full bg-[#0b1220] border border-white/10 rounded-2xl py-5 pl-14 pr-4 outline-none focus:border-purple-500 text-lg"
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    password: e.target.value
+                  })
+                }
+                required
+              />
+
+            </div>
+
+            {/* BUTTON */}
+
+            <button className="w-full bg-gradient-to-r from-purple-600 to-pink-500 py-5 rounded-2xl font-bold text-lg hover:scale-[1.02] transition duration-300 shadow-2xl">
+
+              Create Account
+
+            </button>
+
+          </form>
+
+          {/* FOOTER */}
+
+          <p className="text-center mt-8 text-gray-400">
+
+            Already have an account?{' '}
+
+            <Link
+              to="/login"
+              className="text-purple-400 hover:text-pink-400 font-semibold"
+            >
+
+              Login here
+
+            </Link>
 
           </p>
 
         </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-5"
-        >
+      </div>
 
-          <div className="relative">
+      {/* FOOTER */}
 
-            <Mail
-              className="absolute left-4 top-4 text-gray-400"
-              size={18}
-            />
+      <footer className="relative z-10 border-t border-white/10 bg-white/5 backdrop-blur px-6 py-6 text-center text-gray-400">
 
-            <input
-              type="email"
-              placeholder="Email"
-              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 outline-none focus:border-purple-500"
-              onChange={(e) =>
-                setEmail(e.target.value)
-              }
-              required
-            />
+        <p className="mb-2">
 
-          </div>
-
-          <div className="relative">
-
-            <Lock
-              className="absolute left-4 top-4 text-gray-400"
-              size={18}
-            />
-
-            <input
-              type="password"
-              placeholder="Password"
-              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 outline-none focus:border-purple-500"
-              onChange={(e) =>
-                setPassword(e.target.value)
-              }
-              required
-            />
-
-          </div>
-
-          <button className="w-full bg-gradient-to-r from-purple-600 to-pink-500 py-4 rounded-2xl font-bold hover:scale-105 transition duration-300 shadow-xl">
-
-            Login
-
-          </button>
-
-        </form>
-
-        <p className="text-center mt-6 text-gray-400">
-
-          New here?{' '}
-
-          <Link
-            to="/register"
-            className="text-purple-400 hover:text-pink-400"
-          >
-
-            Register
-
-          </Link>
+          Made with ❤️ by MCA Batch 2024–26
 
         </p>
 
-      </div>
+        <p className="text-sm text-gray-500">
+
+          © 2026 MCA Memory Wall. All rights reserved.
+
+        </p>
+
+      </footer>
 
     </div>
 
@@ -176,4 +268,4 @@ const Login = () => {
 
 };
 
-export default Login;
+export default Register;
