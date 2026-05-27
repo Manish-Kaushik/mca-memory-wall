@@ -13,7 +13,7 @@ import {
   Mail,
   Lock,
   UserPlus,
-  IdCard
+ BadgeIcon
 } from 'lucide-react';
 
 import api from '../services/api';
@@ -145,7 +145,7 @@ const Register = () => {
 
             <div className="relative">
 
-              <IdCard
+              <BadgeIcon
                 className="absolute left-5 top-5 text-gray-400"
                 size={20}
               />
