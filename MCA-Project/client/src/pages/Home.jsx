@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 
 import {
   ArrowRight,
-  Images,
+  ImageIcon,
   Sparkles,
   Users,
   Heart
@@ -104,7 +104,7 @@ const Home = () => {
 
             <div className="w-14 h-14 rounded-2xl bg-purple-500/20 flex items-center justify-center mx-auto mb-5">
 
-              <Images
+              <ImageIcon
                 size={28}
                 className="text-purple-400"
               />
