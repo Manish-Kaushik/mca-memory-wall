@@ -187,7 +187,7 @@ const AdminDashboard = () => {
 
       <h1 className="text-4xl font-bold mb-8 text-purple-400">
 
-        👑 Admin Dashboard
+      Admin Dashboard
 
       </h1>
 
