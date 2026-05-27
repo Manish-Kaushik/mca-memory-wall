@@ -1,34 +1,72 @@
-// import axios from 'axios';
-// const api = axios.create({ baseURL: 'https://mca-memory-wall-mxkv.onrender.com/api' });
-// api.interceptors.request.use((config) => {
-//   const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-//   if (userInfo?.token) config.headers.Authorization = `Bearer ${userInfo.token}`;
-//   return config;
-// });
-// export default api;
-
 import axios from 'axios';
 
 const api = axios.create({
+
   baseURL:
     'https://mca-memory-wall-mxkv.onrender.com/api'
+
 });
 
-api.interceptors.request.use((config) => {
+// ================= REQUEST INTERCEPTOR =================
 
-  const userInfo = JSON.parse(
-    localStorage.getItem('userInfo')
-  );
+api.interceptors.request.use(
 
-  if (userInfo?.token) {
+  (config) => {
 
-    config.headers.Authorization =
-      `Bearer ${userInfo.token}`;
+    const userInfo = JSON.parse(
+      localStorage.getItem('userInfo')
+    );
+
+    if (userInfo?.token) {
+
+      config.headers.Authorization =
+        `Bearer ${userInfo.token}`;
+
+    }
+
+    return config;
+
+  },
+
+  (error) => {
+
+    return Promise.reject(error);
 
   }
 
-  return config;
+);
 
-});
+// ================= RESPONSE INTERCEPTOR =================
+
+api.interceptors.response.use(
+
+  (response) => {
+
+    return response;
+
+  },
+
+  (error) => {
+
+    // TOKEN EXPIRED / INVALID
+
+    if (
+      error.response &&
+      error.response.status === 401
+    ) {
+
+      localStorage.removeItem('userInfo');
+
+      // Redirect to login
+
+      window.location.href = '/login';
+
+    }
+
+    return Promise.reject(error);
+
+  }
+
+);
 
 export default api;

@@ -97,10 +97,10 @@ router.post(
             req.body.category,
 
           reactions: {
-            love: 0,
-            fire: 0,
-            funny: 0,
-            sad: 0
+            love: [],
+            fire: [],
+            funny: [],
+            sad: []
           }
 
         });
@@ -160,9 +160,11 @@ router.get('/', async (req, res) => {
 
 
 // ================= REACT MEMORY =================
+// ================= REACT MEMORY =================
 
 router.put(
   '/react/:id',
+  protect,
 
   async (req, res) => {
 
@@ -181,31 +183,58 @@ router.put(
 
       }
 
+      const type = req.body.type;
+
+      // VALIDATION
+
+      const validTypes = [
+        'love',
+        'fire',
+        'funny',
+        'sad'
+      ];
+
+      if (!validTypes.includes(type)) {
+
+        return res.status(400).json({
+          message: 'Invalid reaction type'
+        });
+
+      }
+
+      const userId =
+        req.user._id.toString();
+
       // initialize if missing
 
-      if (!memory.reactions) {
+      if (!memory.reactions[type]) {
 
-        memory.reactions = {
-          love: 0,
-          fire: 0,
-          funny: 0,
-          sad: 0
-        };
+        memory.reactions[type] = [];
 
       }
 
-      const type =
-        req.body.type;
+      const alreadyReacted =
+        memory.reactions[type]
+          .map(id => id.toString())
+          .includes(userId);
 
-      if (
-        !memory.reactions[type]
-      ) {
+      // TOGGLE REACTION
 
-        memory.reactions[type] = 0;
+      if (alreadyReacted) {
+
+        memory.reactions[type] =
+          memory.reactions[type]
+            .filter(
+              id =>
+                id.toString() !== userId
+            );
+
+      } else {
+
+        memory.reactions[type]
+          .push(userId);
 
       }
-
-      memory.reactions[type]++;
 
       await memory.save();
 
@@ -223,8 +252,6 @@ router.put(
 
   }
 );
-
-
 // ================= DELETE MEMORY =================
 
 router.delete(
@@ -261,7 +288,7 @@ router.delete(
 
           const fileName =
             parts[
-              parts.length - 1
+            parts.length - 1
             ];
 
           const publicId =
