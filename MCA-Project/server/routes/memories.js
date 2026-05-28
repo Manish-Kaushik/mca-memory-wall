@@ -213,6 +213,16 @@ router.put(
 
       }
 
+      // FIX OLD NUMBER-BASED REACTIONS
+
+      if (
+        typeof memory.reactions[type] === 'number'
+      ) {
+
+        memory.reactions[type] = [];
+
+      }
+
       const alreadyReacted =
         memory.reactions[type]
           .map(id => id.toString())
