@@ -10,6 +10,12 @@ import {
   useState
 } from "react";
 
+import { format } from "timeago.js";
+
+import toast from "react-hot-toast";
+
+import { motion } from "framer-motion";
+
 import api from "../services/api";
 
 import {
@@ -26,15 +32,22 @@ const MemoryCard = ({ memory }) => {
 
   const [reactions, setReactions] =
     useState(
+
       memory.reactions || {
+
         love: [],
+
         fire: [],
+
         funny: [],
-        sad: [],
+
+        sad: []
+
       }
+
     );
 
-  // CHECK IF USER REACTED
+  // ================= CHECK REACTED =================
 
   const hasReacted = (type) => {
 
@@ -44,93 +57,134 @@ const MemoryCard = ({ memory }) => {
 
   };
 
-  // REACT FUNCTION
+  // ================= REACT FUNCTION =================
 
-  const reactMemory = async (type) => {
+  const reactMemory =
+    async (type) => {
 
-    try {
+      try {
 
-      const { data } =
-        await api.put(
+        const { data } =
+          await api.put(
 
-          `/memories/react/${memory._id}`,
+            `/memories/react/${memory._id}`,
 
-          { type }
+            { type }
 
+          );
+
+        setReactions(
+          data.reactions
         );
 
-      setReactions(data.reactions);
+      } catch (error) {
 
-    } catch (error) {
+        console.log(error);
 
-      console.log(error);
+        toast.error(
+          "Reaction failed"
+        );
 
-    }
+      }
 
-  };
+    };
 
   return (
 
-    <div className="bg-gray-800 rounded-2xl overflow-hidden break-inside-avoid shadow-xl border border-gray-700 hover:scale-[1.01] transition duration-300">
+    <motion.div
+
+      initial={{
+        opacity: 0,
+        y: 20
+      }}
+
+      animate={{
+        opacity: 1,
+        y: 0
+      }}
+
+      transition={{
+        duration: 0.4
+      }}
+
+      className="bg-gray-800/90 backdrop-blur-xl rounded-3xl overflow-hidden break-inside-avoid shadow-2xl border border-gray-700 hover:scale-[1.015] transition duration-300"
+
+    >
 
       {/* IMAGE */}
 
       <img
+
         src={
           memory.image ||
           "https://via.placeholder.com/500"
         }
+
         alt="memory"
-        className="w-full object-cover"
+
+        loading="lazy"
+
+        className="w-full object-cover max-h-[500px]"
+
       />
 
-      <div className="p-4">
+      <div className="p-5">
 
         {/* USER */}
 
-        <div className="flex items-center gap-2 mb-3">
+        <div className="flex items-center gap-3 mb-4">
 
           <img
+
             src={
               memory.userId?.profileImage ||
-              "https://via.placeholder.com/40"
+              "/default.png"
             }
+
             alt="user"
-            className="w-9 h-9 rounded-full border-2 border-purple-500"
+
+            loading="lazy"
+
+            className="w-10 h-10 rounded-full border-2 border-purple-500 object-cover"
+
           />
 
-          <span className="font-semibold text-sm">
+          <div>
 
-            {memory.userId?.name ||
-              "Unknown User"}
+            <h3 className="font-semibold text-sm">
 
-          </span>
+              {memory.userId?.name ||
+                "Unknown User"}
+
+            </h3>
+
+            <p className="text-xs text-gray-400">
+
+              {format(
+                memory.createdAt
+              )}
+
+            </p>
+
+          </div>
 
         </div>
 
         {/* MESSAGE */}
 
-        <p className="text-gray-300 italic mb-3 leading-relaxed">
+        <p className="text-gray-300 italic mb-4 leading-relaxed break-words">
 
           "{memory.message}"
 
         </p>
 
-        {/* CATEGORY + DATE */}
+        {/* CATEGORY */}
 
-        <div className="flex justify-between text-xs text-gray-500 mb-4">
+        <div className="flex justify-between items-center text-xs text-gray-400 mb-5">
 
           <span className="bg-purple-500/10 text-purple-300 px-3 py-1 rounded-full border border-purple-500/20">
 
             {memory.category}
-
-          </span>
-
-          <span>
-
-            {new Date(
-              memory.createdAt
-            ).toLocaleDateString()}
 
           </span>
 
@@ -143,23 +197,31 @@ const MemoryCard = ({ memory }) => {
           {/* LOVE */}
 
           <button
+
             onClick={() =>
               reactMemory("love")
             }
+
             className={`flex items-center gap-1 px-3 py-1 rounded-full transition-all duration-200 ${
               hasReacted("love")
+
                 ? "bg-pink-500/20 text-pink-500 scale-110 shadow-lg shadow-pink-500/30"
+
                 : "text-gray-400 hover:text-pink-400"
             }`}
+
           >
 
             <Heart
+
               size={18}
+
               fill={
                 hasReacted("love")
                   ? "currentColor"
                   : "none"
               }
+
             />
 
             {reactions.love?.length || 0}
@@ -169,14 +231,19 @@ const MemoryCard = ({ memory }) => {
           {/* FIRE */}
 
           <button
+
             onClick={() =>
               reactMemory("fire")
             }
+
             className={`flex items-center gap-1 px-3 py-1 rounded-full transition-all duration-200 ${
               hasReacted("fire")
+
                 ? "bg-orange-500/20 text-orange-500 scale-110 shadow-lg shadow-orange-500/30"
+
                 : "text-gray-400 hover:text-orange-400"
             }`}
+
           >
 
             <Flame size={18} />
@@ -188,14 +255,19 @@ const MemoryCard = ({ memory }) => {
           {/* FUNNY */}
 
           <button
+
             onClick={() =>
               reactMemory("funny")
             }
+
             className={`flex items-center gap-1 px-3 py-1 rounded-full transition-all duration-200 ${
               hasReacted("funny")
+
                 ? "bg-yellow-500/20 text-yellow-400 scale-110 shadow-lg shadow-yellow-500/30"
+
                 : "text-gray-400 hover:text-yellow-300"
             }`}
+
           >
 
             <Laugh size={18} />
@@ -207,14 +279,19 @@ const MemoryCard = ({ memory }) => {
           {/* SAD */}
 
           <button
+
             onClick={() =>
               reactMemory("sad")
             }
+
             className={`flex items-center gap-1 px-3 py-1 rounded-full transition-all duration-200 ${
               hasReacted("sad")
+
                 ? "bg-blue-500/20 text-blue-400 scale-110 shadow-lg shadow-blue-500/30"
+
                 : "text-gray-400 hover:text-blue-300"
             }`}
+
           >
 
             <Frown size={18} />
@@ -227,7 +304,7 @@ const MemoryCard = ({ memory }) => {
 
       </div>
 
-    </div>
+    </motion.div>
 
   );
 

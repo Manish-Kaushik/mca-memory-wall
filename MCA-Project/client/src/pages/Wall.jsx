@@ -18,15 +18,18 @@ import {
 
 const Wall = () => {
 
+  // ================= STATES =================
+
   const [memories, setMemories] =
     useState([]);
 
   const [search, setSearch] =
     useState('');
 
-  const [selectedCategory,
-    setSelectedCategory] =
-    useState('All');
+  const [
+    selectedCategory,
+    setSelectedCategory
+  ] = useState('All');
 
   const [loading, setLoading] =
     useState(true);
@@ -45,7 +48,7 @@ const Wall = () => {
               '/memories'
             );
 
-          // remove deleted users
+          // REMOVE DELETED USERS
 
           const filtered =
             data.filter(
@@ -94,42 +97,44 @@ const Wall = () => {
   // ================= FILTER MEMORIES =================
 
   const filteredMemories =
-    memories.filter((memory) => {
+    memories?.filter(
+      (memory) => {
 
-      const matchesSearch =
+        const matchesSearch =
 
-        memory.message
-          ?.toLowerCase()
+          memory.message
+            ?.toLowerCase()
 
-          .includes(
-            search.toLowerCase()
-          )
+            .includes(
+              search.toLowerCase()
+            )
 
-        ||
+          ||
 
-        memory.userId?.name
-          ?.toLowerCase()
+          memory.userId?.name
+            ?.toLowerCase()
 
-          .includes(
-            search.toLowerCase()
-          );
+            .includes(
+              search.toLowerCase()
+            );
 
-      const matchesCategory =
+        const matchesCategory =
 
-        selectedCategory ===
-        'All'
+          selectedCategory ===
+          'All'
 
-        ||
+          ||
 
-        memory.category ===
-        selectedCategory;
+          memory.category ===
+          selectedCategory;
 
-      return (
-        matchesSearch &&
-        matchesCategory
-      );
+        return (
+          matchesSearch &&
+          matchesCategory
+        );
 
-    });
+      }
+    );
 
   // ================= TRENDING MEMORY =================
 
@@ -142,16 +147,26 @@ const Wall = () => {
           Object.values(
             a.reactions || {}
           ).reduce(
-            (x, y) => x + y,
+
+            (total, arr) =>
+              total +
+              (arr?.length || 0),
+
             0
+
           );
 
         const bTotal =
           Object.values(
             b.reactions || {}
           ).reduce(
-            (x, y) => x + y,
+
+            (total, arr) =>
+              total +
+              (arr?.length || 0),
+
             0
+
           );
 
         return bTotal - aTotal;
@@ -164,9 +179,19 @@ const Wall = () => {
 
     return (
 
-      <div className="min-h-screen flex items-center justify-center text-xl text-gray-400">
+      <div className="min-h-screen bg-[#050816] flex items-center justify-center">
 
-        Loading Memories...
+        <div className="text-center">
+
+          <div className="w-14 h-14 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-5"></div>
+
+          <p className="text-gray-400 text-lg">
+
+            Loading Memories...
+
+          </p>
+
+        </div>
 
       </div>
 
@@ -238,7 +263,7 @@ const Wall = () => {
                 )
               }
 
-              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 outline-none backdrop-blur-md focus:border-purple-500"
+              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 outline-none backdrop-blur-md focus:border-purple-500 transition"
             />
 
           </div>
