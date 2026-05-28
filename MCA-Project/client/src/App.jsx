@@ -4,25 +4,38 @@ import {
   Route
 } from "react-router-dom";
 
-import { Toaster } from "react-hot-toast";
+import { Toaster }
+from "react-hot-toast";
 
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider }
+from "./context/AuthContext";
 
-import Navbar from "./components/Navbar";
+import Navbar
+from "./components/Navbar";
 
-import AdminDashboard from "./pages/AdminDashboard";
+import AdminDashboard
+from "./pages/AdminDashboard";
 
-import Home from "./pages/Home";
+import Home
+from "./pages/Home";
 
-import Login from "./pages/Login";
+import Login
+from "./pages/Login";
 
-import Register from "./pages/Register";
+import Register
+from "./pages/Register";
 
-import Wall from "./pages/Wall";
+import Wall
+from "./pages/Wall";
 
-import Upload from "./pages/Upload";
+import Upload
+from "./pages/Upload";
 
-import Profile from "./pages/Profile";
+import Profile
+from "./pages/Profile";
+
+import Feedback
+from "./pages/Feedback";
 
 function App() {
 
@@ -121,6 +134,11 @@ function App() {
             <Route
               path="/upload"
               element={<Upload />}
+            />
+
+            <Route
+              path="/feedback"
+              element={<Feedback />}
             />
 
             <Route

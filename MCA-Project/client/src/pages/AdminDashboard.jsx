@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useMemo,
   useState
 } from 'react';
 
@@ -7,12 +8,23 @@ import {
   useNavigate
 } from 'react-router-dom';
 
-import api from '../services/api';
+import {
+  Search,
+  MessageSquare
+} from 'lucide-react';
+
+import { format }
+from 'timeago.js';
+
+import api
+from '../services/api';
 
 const AdminDashboard = () => {
 
   const navigate =
     useNavigate();
+
+  // ================= STATES =================
 
   const [stats, setStats] =
     useState({});
@@ -23,8 +35,20 @@ const AdminDashboard = () => {
   const [memories, setMemories] =
     useState([]);
 
+  const [feedbacks, setFeedbacks] =
+    useState([]);
+
   const [loading, setLoading] =
     useState(true);
+
+  const [userSearch, setUserSearch] =
+    useState('');
+
+  const [memorySearch, setMemorySearch] =
+    useState('');
+
+  const [sortType, setSortType] =
+    useState('latest');
 
   // ================= FETCH DATA =================
 
@@ -37,17 +61,21 @@ const AdminDashboard = () => {
 
           const userInfo =
             JSON.parse(
+
               localStorage.getItem(
                 'userInfo'
               )
+
             );
 
-          // admin protection
+          // ADMIN PROTECTION
 
           if (
+
             userInfo?.user?.role
             !==
             'admin'
+
           ) {
 
             navigate('/');
@@ -71,6 +99,11 @@ const AdminDashboard = () => {
               '/admin/memories'
             );
 
+          const feedbackRes =
+            await api.get(
+              '/feedback/all'
+            );
+
           setStats(
             statsRes.data
           );
@@ -81,6 +114,10 @@ const AdminDashboard = () => {
 
           setMemories(
             memoriesRes.data
+          );
+
+          setFeedbacks(
+            feedbackRes.data
           );
 
         } catch (error) {
@@ -98,6 +135,110 @@ const AdminDashboard = () => {
     fetchAdminData();
 
   }, []);
+
+  // ================= FILTER USERS =================
+
+  const filteredUsers =
+    useMemo(() => {
+
+      let filtered =
+        users.filter(
+
+          (user) =>
+
+            user.name
+              ?.toLowerCase()
+              .includes(
+                userSearch.toLowerCase()
+              )
+
+            ||
+
+            user.enrollment
+              ?.toLowerCase()
+              .includes(
+                userSearch.toLowerCase()
+              )
+
+        );
+
+      // SORTING
+
+      if (
+        sortType === 'name-asc'
+      ) {
+
+        filtered.sort(
+
+          (a, b) =>
+
+            a.name.localeCompare(
+              b.name
+            )
+
+        );
+
+      }
+
+      if (
+        sortType === 'name-desc'
+      ) {
+
+        filtered.sort(
+
+          (a, b) =>
+
+            b.name.localeCompare(
+              a.name
+            )
+
+        );
+
+      }
+
+      if (
+        sortType === 'enrollment'
+      ) {
+
+        filtered.sort(
+
+          (a, b) =>
+
+            a.enrollment.localeCompare(
+              b.enrollment
+            )
+
+        );
+
+      }
+
+      return filtered;
+
+    }, [
+
+      users,
+
+      userSearch,
+
+      sortType
+
+    ]);
+
+  // ================= FILTER MEMORIES =================
+
+  const filteredMemories =
+    memories.filter(
+
+      (memory) =>
+
+        memory.userId?.name
+          ?.toLowerCase()
+
+          .includes(
+            memorySearch.toLowerCase()
+          )
+
+    );
 
   // ================= DELETE USER =================
 
@@ -119,9 +260,12 @@ const AdminDashboard = () => {
         );
 
         setUsers(
+
           users.filter(
-            (u) => u._id !== id
+            (u) =>
+              u._id !== id
           )
+
         );
 
       } catch (error) {
@@ -152,9 +296,12 @@ const AdminDashboard = () => {
         );
 
         setMemories(
+
           memories.filter(
-            (m) => m._id !== id
+            (m) =>
+              m._id !== id
           )
+
         );
 
       } catch (error) {
@@ -164,6 +311,8 @@ const AdminDashboard = () => {
       }
 
     };
+
+  // ================= LOADING =================
 
   if (loading) {
 
@@ -187,13 +336,13 @@ const AdminDashboard = () => {
 
       <h1 className="text-4xl font-bold mb-8 text-purple-400">
 
-      Admin Dashboard
+        Admin Dashboard
 
       </h1>
 
       {/* STATS */}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
 
         <div className="bg-gray-800 p-6 rounded-2xl border border-gray-700">
 
@@ -227,17 +376,104 @@ const AdminDashboard = () => {
 
         </div>
 
+        <div className="bg-gray-800 p-6 rounded-2xl border border-gray-700">
+
+          <h2 className="text-gray-400 mb-2">
+
+            Total Suggestions
+
+          </h2>
+
+          <p className="text-4xl font-bold">
+
+            {feedbacks.length || 0}
+
+          </p>
+
+        </div>
+
       </div>
 
       {/* USERS */}
 
       <div className="bg-gray-800 rounded-2xl p-6 mb-10 border border-gray-700 overflow-x-auto">
 
-        <h2 className="text-2xl font-bold mb-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
 
-          Users Management
+          <h2 className="text-2xl font-bold">
 
-        </h2>
+            Users Management
+
+          </h2>
+
+          <div className="flex gap-3 flex-wrap">
+
+            {/* SEARCH */}
+
+            <div className="relative">
+
+              <Search
+                size={16}
+                className="absolute left-3 top-3 text-gray-400"
+              />
+
+              <input
+
+                type="text"
+
+                placeholder="Search user..."
+
+                value={userSearch}
+
+                onChange={(e) =>
+                  setUserSearch(
+                    e.target.value
+                  )
+                }
+
+                className="bg-gray-900 border border-gray-700 rounded-xl pl-10 pr-4 py-2 outline-none"
+
+              />
+
+            </div>
+
+            {/* SORT */}
+
+            <select
+
+              value={sortType}
+
+              onChange={(e) =>
+                setSortType(
+                  e.target.value
+                )
+              }
+
+              className="bg-gray-900 border border-gray-700 rounded-xl px-4 py-2 outline-none"
+
+            >
+
+              <option value="latest">
+                Latest
+              </option>
+
+              <option value="name-asc">
+                Name A-Z
+              </option>
+
+              <option value="name-desc">
+                Name Z-A
+              </option>
+
+              <option value="enrollment">
+                Enrollment
+              </option>
+
+            </select>
+
+          </div>
+
+        </div>
 
         <table className="w-full text-left">
 
@@ -271,82 +507,88 @@ const AdminDashboard = () => {
 
           <tbody>
 
-            {users.map((user) => (
+            {filteredUsers.map(
+              (user) => (
 
-              <tr
-                key={user._id}
-                className="border-b border-gray-700"
-              >
+                <tr
+                  key={user._id}
+                  className="border-b border-gray-700"
+                >
 
-                <td className="py-4 flex items-center gap-2">
+                  <td className="py-4 flex items-center gap-2">
 
-                  <img
-                    src={
-                      user.profileImage
-                    }
+                    <img
 
-                    alt="user"
-
-                    className="w-10 h-10 rounded-full"
-                  />
-
-                  {user.name}
-
-                </td>
-
-                <td>
-                  {user.email}
-                </td>
-
-                <td>
-                  {user.enrollment}
-                </td>
-
-                <td>
-
-                  <span
-                    className={`px-2 py-1 rounded text-sm ${
-                      user.role ===
-                      'admin'
-
-                        ? 'bg-purple-600'
-
-                        : 'bg-gray-700'
-                    }`}
-                  >
-
-                    {user.role}
-
-                  </span>
-
-                </td>
-
-                <td>
-
-                  {user.role !==
-                    'admin' && (
-
-                    <button
-                      onClick={() =>
-                        deleteUser(
-                          user._id
-                        )
+                      src={
+                        user.profileImage
                       }
 
-                      className="bg-red-600 px-3 py-1 rounded hover:bg-red-500"
+                      alt="user"
+
+                      className="w-10 h-10 rounded-full object-cover"
+
+                    />
+
+                    {user.name}
+
+                  </td>
+
+                  <td>
+                    {user.email}
+                  </td>
+
+                  <td>
+                    {user.enrollment}
+                  </td>
+
+                  <td>
+
+                    <span
+                      className={`px-2 py-1 rounded text-sm ${
+                        user.role ===
+                        'admin'
+
+                          ? 'bg-purple-600'
+
+                          : 'bg-gray-700'
+                      }`}
                     >
 
-                      Delete
+                      {user.role}
 
-                    </button>
+                    </span>
 
-                  )}
+                  </td>
 
-                </td>
+                  <td>
 
-              </tr>
+                    {user.role !==
+                      'admin' && (
 
-            ))}
+                      <button
+
+                        onClick={() =>
+                          deleteUser(
+                            user._id
+                          )
+                        }
+
+                        className="bg-red-600 px-3 py-1 rounded hover:bg-red-500"
+
+                      >
+
+                        Delete
+
+                      </button>
+
+                    )}
+
+                  </td>
+
+                </tr>
+
+              )
+            )}
 
           </tbody>
 
@@ -356,13 +598,46 @@ const AdminDashboard = () => {
 
       {/* MEMORIES */}
 
-      <div className="bg-gray-800 rounded-2xl p-6 border border-gray-700 overflow-x-auto">
+      <div className="bg-gray-800 rounded-2xl p-6 mb-10 border border-gray-700 overflow-x-auto">
 
-        <h2 className="text-2xl font-bold mb-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
 
-          Memories Management
+          <h2 className="text-2xl font-bold">
 
-        </h2>
+            Memories Management
+
+          </h2>
+
+          {/* MEMORY SEARCH */}
+
+          <div className="relative">
+
+            <Search
+              size={16}
+              className="absolute left-3 top-3 text-gray-400"
+            />
+
+            <input
+
+              type="text"
+
+              placeholder="Search memory user..."
+
+              value={memorySearch}
+
+              onChange={(e) =>
+                setMemorySearch(
+                  e.target.value
+                )
+              }
+
+              className="bg-gray-900 border border-gray-700 rounded-xl pl-10 pr-4 py-2 outline-none"
+
+            />
+
+          </div>
+
+        </div>
 
         <table className="w-full text-left">
 
@@ -396,73 +671,178 @@ const AdminDashboard = () => {
 
           <tbody>
 
-            {memories.map((memory) => (
+            {filteredMemories.map(
+              (memory) => (
 
-              <tr
-                key={memory._id}
-                className="border-b border-gray-700"
-              >
+                <tr
+                  key={memory._id}
+                  className="border-b border-gray-700"
+                >
 
-                <td className="py-4">
+                  <td className="py-4">
 
-                  <img
-                    src={memory.image}
+                    <img
 
-                    alt="memory"
+                      src={memory.image}
 
-                    className="w-20 h-20 object-cover rounded-lg"
-                  />
+                      alt="memory"
 
-                </td>
+                      className="w-20 h-20 object-cover rounded-lg"
 
-                <td>
+                    />
 
-                  {
-                    memory.userId
-                      ?.name
-                  }
+                  </td>
 
-                </td>
+                  <td>
 
-                <td>
-
-                  {memory.category}
-
-                </td>
-
-                <td>
-
-                  {new Date(
-                    memory.createdAt
-                  ).toLocaleDateString()}
-
-                </td>
-
-                <td>
-
-                  <button
-                    onClick={() =>
-                      deleteMemory(
-                        memory._id
-                      )
+                    {
+                      memory.userId
+                        ?.name
                     }
 
-                    className="bg-red-600 px-3 py-1 rounded hover:bg-red-500"
-                  >
+                  </td>
 
-                    Delete
+                  <td>
 
-                  </button>
+                    {memory.category}
 
-                </td>
+                  </td>
 
-              </tr>
+                  <td>
 
-            ))}
+                    {new Date(
+                      memory.createdAt
+                    ).toLocaleDateString()}
+
+                  </td>
+
+                  <td>
+
+                    <button
+
+                      onClick={() =>
+                        deleteMemory(
+                          memory._id
+                        )
+                      }
+
+                      className="bg-red-600 px-3 py-1 rounded hover:bg-red-500"
+
+                    >
+
+                      Delete
+
+                    </button>
+
+                  </td>
+
+                </tr>
+
+              )
+            )}
 
           </tbody>
 
         </table>
+
+      </div>
+
+      {/* FEEDBACK SECTION */}
+
+      <div className="bg-gray-800 rounded-2xl p-6 border border-gray-700">
+
+        <div className="flex items-center gap-2 mb-6">
+
+          <MessageSquare
+            size={22}
+            className="text-purple-400"
+          />
+
+          <h2 className="text-2xl font-bold">
+
+            User Suggestions
+
+          </h2>
+
+        </div>
+
+        <div className="space-y-5">
+
+          {feedbacks.length === 0 ? (
+
+            <p className="text-gray-400">
+
+              No suggestions yet.
+
+            </p>
+
+          ) : (
+
+            feedbacks.map(
+              (feedback) => (
+
+                <div
+
+                  key={feedback._id}
+
+                  className="bg-gray-900 border border-gray-700 rounded-2xl p-5"
+
+                >
+
+                  <div className="flex items-center gap-3 mb-3">
+
+                    <img
+
+                      src={
+                        feedback.userId
+                          ?.profileImage ||
+
+                        "/default.png"
+                      }
+
+                      alt="profile"
+
+                      className="w-11 h-11 rounded-full object-cover border border-purple-500"
+
+                    />
+
+                    <div>
+
+                      <h3 className="font-semibold">
+
+                        {
+                          feedback.userId
+                            ?.name
+                        }
+
+                      </h3>
+
+                      <p className="text-xs text-gray-400">
+
+                        {format(
+                          feedback.createdAt
+                        )}
+
+                      </p>
+
+                    </div>
+
+                  </div>
+
+                  <p className="text-gray-300 leading-relaxed break-words">
+
+                    {feedback.message}
+
+                  </p>
+
+                </div>
+
+              )
+            )
+
+          )}
+
+        </div>
 
       </div>
 

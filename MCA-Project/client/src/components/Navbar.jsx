@@ -5,7 +5,8 @@ import { useContext, useState } from "react";
 import {
   Menu,
   X,
-  Sparkles
+  Sparkles,
+  MessageSquare
 } from "lucide-react";
 
 import { AuthContext } from "../context/AuthContext";
@@ -23,11 +24,15 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] =
     useState(false);
 
+  // ================= LOGOUT =================
+
   const handleLogout = () => {
 
     logoutUser();
 
   };
+
+  // ================= STYLES =================
 
   const navLink =
     "hover:text-purple-400 transition duration-300";
@@ -80,6 +85,8 @@ const Navbar = () => {
 
             <>
 
+              {/* MEMORIES */}
+
               <Link
                 to="/wall"
                 className={`${navLink} ${
@@ -92,6 +99,8 @@ const Navbar = () => {
                 Memories
 
               </Link>
+
+              {/* UPLOAD */}
 
               <Link
                 to="/upload"
@@ -106,6 +115,25 @@ const Navbar = () => {
 
               </Link>
 
+              {/* SUGGESTIONS */}
+
+              <Link
+                to="/feedback"
+                className={`${navLink} flex items-center gap-1 ${
+                  location.pathname === "/feedback"
+                    ? activeLink
+                    : ""
+                }`}
+              >
+
+                <MessageSquare size={16} />
+
+                Suggestions
+
+              </Link>
+
+              {/* PROFILE */}
+
               <Link
                 to="/profile"
                 className={`${navLink} ${
@@ -119,6 +147,8 @@ const Navbar = () => {
 
               </Link>
 
+              {/* ADMIN */}
+
               {user?.role === "admin" && (
 
                 <Link
@@ -131,6 +161,8 @@ const Navbar = () => {
                 </Link>
 
               )}
+
+              {/* LOGOUT */}
 
               <button
                 onClick={handleLogout}
@@ -147,6 +179,8 @@ const Navbar = () => {
 
             <>
 
+              {/* HOME */}
+
               <Link
                 to="/"
                 className={`${navLink} ${
@@ -159,6 +193,8 @@ const Navbar = () => {
                 Home
 
               </Link>
+
+              {/* MEMORIES */}
 
               <Link
                 to="/wall"
@@ -173,6 +209,8 @@ const Navbar = () => {
 
               </Link>
 
+              {/* LOGIN */}
+
               <Link
                 to="/login"
                 className={`${navLink} ${
@@ -185,6 +223,8 @@ const Navbar = () => {
                 Login
 
               </Link>
+
+              {/* REGISTER */}
 
               <Link
                 to="/register"
@@ -207,7 +247,6 @@ const Navbar = () => {
           onClick={() =>
             setMenuOpen(!menuOpen)
           }
-
           className="md:hidden"
         >
 
@@ -231,6 +270,8 @@ const Navbar = () => {
 
             <>
 
+              {/* MEMORIES */}
+
               <Link
                 to="/wall"
                 onClick={() =>
@@ -241,6 +282,8 @@ const Navbar = () => {
                 Memories
 
               </Link>
+
+              {/* UPLOAD */}
 
               <Link
                 to="/upload"
@@ -253,6 +296,24 @@ const Navbar = () => {
 
               </Link>
 
+              {/* SUGGESTIONS */}
+
+              <Link
+                to="/feedback"
+                onClick={() =>
+                  setMenuOpen(false)
+                }
+                className="flex items-center gap-2"
+              >
+
+                <MessageSquare size={16} />
+
+                Suggestions
+
+              </Link>
+
+              {/* PROFILE */}
+
               <Link
                 to="/profile"
                 onClick={() =>
@@ -263,6 +324,8 @@ const Navbar = () => {
                 Profile
 
               </Link>
+
+              {/* ADMIN */}
 
               {user?.role === "admin" && (
 
@@ -279,6 +342,8 @@ const Navbar = () => {
                 </Link>
 
               )}
+
+              {/* LOGOUT */}
 
               <button
                 onClick={() => {
@@ -302,6 +367,8 @@ const Navbar = () => {
 
             <>
 
+              {/* HOME */}
+
               <Link
                 to="/"
                 onClick={() =>
@@ -312,6 +379,8 @@ const Navbar = () => {
                 Home
 
               </Link>
+
+              {/* MEMORIES */}
 
               <Link
                 to="/wall"
@@ -324,6 +393,8 @@ const Navbar = () => {
 
               </Link>
 
+              {/* LOGIN */}
+
               <Link
                 to="/login"
                 onClick={() =>
@@ -334,6 +405,8 @@ const Navbar = () => {
                 Login
 
               </Link>
+
+              {/* REGISTER */}
 
               <Link
                 to="/register"
