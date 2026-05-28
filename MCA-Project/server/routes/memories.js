@@ -383,6 +383,91 @@ router.put(
 
 );
 
+// ================= UPDATE MEMORY =================
+
+router.put(
+
+  '/:id',
+
+  protect,
+
+  async (req, res) => {
+
+    try {
+
+      const memory =
+        await Memory.findById(
+          req.params.id
+        );
+
+      if (!memory) {
+
+        return res.status(404).json({
+
+          message:
+            'Memory not found'
+
+        });
+
+      }
+
+      // ONLY OWNER CAN EDIT
+
+      if (
+
+        memory.userId.toString()
+
+        !==
+
+        req.user._id.toString()
+
+      ) {
+
+        return res.status(401).json({
+
+          message:
+            'Not authorized'
+
+        });
+
+      }
+
+      // UPDATE FIELDS
+
+      memory.message =
+        req.body.message
+        ||
+        memory.message;
+
+      memory.category =
+        req.body.category
+        ||
+        memory.category;
+
+      // SAVE
+
+      const updatedMemory =
+        await memory.save();
+
+      res.json(updatedMemory);
+
+    } catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+
+        message:
+          error.message
+
+      });
+
+    }
+
+  }
+
+);
+
 
 // ================= DELETE MEMORY =================
 
