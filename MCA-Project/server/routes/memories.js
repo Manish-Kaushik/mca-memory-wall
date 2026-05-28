@@ -97,10 +97,15 @@ router.post(
             req.body.category,
 
           reactions: {
+
             love: [],
+
             fire: [],
+
             funny: [],
+
             sad: []
+
           }
 
         });
@@ -139,7 +144,7 @@ router.get('/', async (req, res) => {
           createdAt: -1
         });
 
-    // remove deleted users
+    // REMOVE DELETED USERS
 
     const filtered =
       memories.filter(
@@ -159,7 +164,6 @@ router.get('/', async (req, res) => {
 });
 
 
-// ================= REACT MEMORY =================
 // ================= REACT MEMORY =================
 
 router.put(
@@ -183,9 +187,10 @@ router.put(
 
       }
 
-      const type = req.body.type;
+      const type =
+        req.body.type;
 
-      // VALIDATION
+      // VALID REACTION TYPES
 
       const validTypes = [
         'love',
@@ -194,7 +199,9 @@ router.put(
         'sad'
       ];
 
-      if (!validTypes.includes(type)) {
+      if (
+        !validTypes.includes(type)
+      ) {
 
         return res.status(400).json({
           message: 'Invalid reaction type'
@@ -205,23 +212,7 @@ router.put(
       const userId =
         req.user._id.toString();
 
-      // initialize if missing
-
-      if (!memory.reactions[type]) {
-
-        memory.reactions[type] = [];
-
-      }
-
-      // FIX OLD NUMBER-BASED REACTIONS
-
-      if (
-        typeof memory.reactions[type] === 'number'
-      ) {
-
-        memory.reactions[type] = [];
-
-      }
+      // CHECK ALREADY REACTED
 
       const alreadyReacted =
         memory.reactions[type]
@@ -262,6 +253,8 @@ router.put(
 
   }
 );
+
+
 // ================= DELETE MEMORY =================
 
 router.delete(
@@ -270,12 +263,20 @@ router.delete(
 
   async (req, res) => {
 
-    const memory =
-      await Memory.findById(
-        req.params.id
-      );
+    try {
 
-    if (memory) {
+      const memory =
+        await Memory.findById(
+          req.params.id
+        );
+
+      if (!memory) {
+
+        return res.status(404).json({
+          message: 'Not found'
+        });
+
+      }
 
       if (
 
@@ -289,7 +290,7 @@ router.delete(
 
       ) {
 
-        // delete image from cloudinary
+        // DELETE IMAGE FROM CLOUDINARY
 
         if (memory.image) {
 
@@ -298,7 +299,7 @@ router.delete(
 
           const fileName =
             parts[
-            parts.length - 1
+              parts.length - 1
             ];
 
           const publicId =
@@ -311,7 +312,7 @@ router.delete(
 
         }
 
-        // delete mongodb memory
+        // DELETE MEMORY
 
         await memory.deleteOne();
 
@@ -327,10 +328,12 @@ router.delete(
 
       }
 
-    } else {
+    } catch (error) {
 
-      res.status(404).json({
-        message: 'Not found'
+      console.log(error);
+
+      res.status(500).json({
+        message: error.message
       });
 
     }
